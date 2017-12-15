@@ -1,4 +1,7 @@
 ## a lightweighted LSH package on large document sets
+### components
+- LSH based on weighted Jaccard distance
+- feature hashing
 ### dependencies
 - pyfarmhash
 - pymongo (if documents are indexed from a db)
