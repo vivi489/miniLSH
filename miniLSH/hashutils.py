@@ -76,15 +76,20 @@ class DocCollectionIterator(DocIterator):
 
 
 class LSH:
-    def __init__(self, col_size, salts, b, n=2):
+    def __init__(self, col_size, r, b, salts=None, n=2):
         self.col_size = col_size
-        self.salts = salts # len(salts) == r
+        if salts is not None: assert salts.shape[0]==b and salts.shape[1]==r, "exception in salts shape"
+        self.salts = salts if salts is not None else self._generate_salts()
         self.b = b
     
-    def minhash(self, doc): #return a list of signature
+    def _generate_salts(self, r, b):
+        np.random.seed(int(time()*100)%(2**16))
+        return (np.random.rand(b, r)*self.col_size).astype(np.int32)
+    
+    def minhash(self, doc, salts): #return a list of signature
         assert len(doc) > 0, "empty signature found; hashing aborted"
         retVal = []
-        perms = [lambda x: farmhash.hash64(str(x+salt))%self.col_size for salt in self.salts]
+        perms = [lambda x: farmhash.hash64(str(x+salt))%self.col_size for salt in salts]
         for perm in perms:
             retVal.append(doc[np.argmin([perm(x) for x in doc])])
         return retVal
@@ -95,7 +100,7 @@ class LSH:
             print("iteration %d"%i)
             id2buckets = defaultdict(list)
             for idx, doc in docs:
-                sig = tuple(self.minhash(doc))
+                sig = tuple(self.minhash(doc, self.salts[i]))
                 id2buckets[sig].append(idx)
             retVal.extend(list(id2buckets.values()))
         return retVal
@@ -121,6 +126,3 @@ class FHash:
     
     def digest(self, docs):
         return [(idx, self.transform(doc)) for idx, doc in docs]
-
-
-
