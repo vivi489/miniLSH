@@ -71,7 +71,7 @@ class DocCollectionIterator(DocIterator):
         self.attrib = token_attrib
     
     def next_doc(self, index=False):
-        for doc in clt.find(snapshot=True):
+        for doc in self.clt.find(snapshot=True):
             yield (doc["web_id"], doc[self.attrib]) if index else doc[self.attrib]
 
 
