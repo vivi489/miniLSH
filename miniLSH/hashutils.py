@@ -66,13 +66,14 @@ class DocFileIterator(DocIterator):
                 self.idx += 1
 
 class DocCollectionIterator(DocIterator):
-    def __init__(self, clt, token_attrib):
+    def __init__(self, clt, token_attrib, idx_col):
         self.clt = clt
         self.attrib = token_attrib
+        self.idx_col = idx_col
     
     def next_doc(self, index=False):
         for doc in self.clt.find(snapshot=True):
-            yield (doc["web_id"], doc[self.attrib]) if index else doc[self.attrib]
+            yield (doc[self.idx_col], doc[self.attrib]) if index else doc[self.attrib]
 
 
 class LSH:
